@@ -4,6 +4,7 @@ from typing import List, Optional, Dict
 import json
 import re
 from autogen_core.models import SystemMessage
+import random
 
 # -------------------------------
 # Interviewer
@@ -55,6 +56,9 @@ async def ask_interviewer(
         "CLARIFICATION": "Ask a focused follow-up to clarify an ambiguous or incomplete part of the candidate's last answer.",
         "DEPTH": "Ask a deeper follow-up question that probes the candidate's reasoning — test their understanding of why something works, when it doesn't, or how it would change under different conditions."
     }.get(action, "Ask a relevant interview question.")
+    
+    if not resume_evidence and action == "APPLIED":
+        action_instruction = "Probe candidate's applied experience by asking question based on real world scenerio or implementation details."
     
     difficulty_instruction = {
     "easy": "Difficulty: Easy",

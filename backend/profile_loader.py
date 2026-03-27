@@ -1,13 +1,16 @@
 import json
-from backend.models import Profile
+from .models import Profile
 
 
 def load_profile(path: str) -> Profile:
+    
     with open(path, "r") as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
 
     return Profile(**data)
-
 
 def profile_to_chunks(profile: Profile):
     chunks = []

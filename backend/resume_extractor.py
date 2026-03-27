@@ -2,13 +2,6 @@ import pdfplumber
 from pathlib import Path
 import re
 
-
-SECTION_HEADERS = {
-    " WORK EXPERIENCE", "PROFESSIONAL SUMMARY", "PROJECTS", "EDUCATION", "ACADEMIC HISTORY", "ADDITION INFORMATION",
-    "SKILLS", "RESEARCH", "TRAINING", "CERTIFICATIONS", "ACHIEVEMENTS", "PUBLICATIONS"
-}
-
-
 def extract_lines_with_style(pdf_path: str, logger = None) -> list[dict]:
 
     logger.info(f"\tInside extract_lines_with_style")
@@ -21,21 +14,30 @@ def extract_lines_with_style(pdf_path: str, logger = None) -> list[dict]:
 
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
-
             words = page.extract_words(extra_attrs=["fontname"])
-
             current_line = []
             current_top = None
 
             for w in words:
-
                 if current_top is None:
                     current_top = w["top"]
-
+                    logger.info(f"\n CURRENT_TOP: {current_top}\n")
+                    
                 # new line detection
                 if abs(w["top"] - current_top) > 3:
+                     # check if previous line is bold
+                    prev_is_bold = current_line and "bold" in current_line[0]["fontname"].lower()
+    
+                    # check indentation difference
+                    if current_line and w["x0"] > current_line[0]["x0"] + 5 and not prev_is_bold:
+                        # continuation of previous line
+                        current_line.append(w)
+                        current_top = w["top"]
+                        continue
+
                     if current_line:
                         lines.append(current_line)
+
                     current_line = []
                     current_top = w["top"]
 
@@ -43,6 +45,7 @@ def extract_lines_with_style(pdf_path: str, logger = None) -> list[dict]:
 
             if current_line:
                 lines.append(current_line)
+                
     logger.info(f"\tTotal lines extracted: {len(lines)}")
     formatted_lines = []
 
@@ -56,6 +59,7 @@ def extract_lines_with_style(pdf_path: str, logger = None) -> list[dict]:
             "bold": bold
         })
 
+    logger.info(f" formated lines: {formatted_lines}")
     logger.info(f"\tExiting extract_lines_with_style\n")
     return formatted_lines
 
@@ -109,25 +113,6 @@ def clean_resume_text(text: str) -> str:
     return text.strip()
 
 
-def split_by_sections(text: str) -> dict:
-    sections = {}
-    current_section = "OTHER"
-    sections[current_section] = []
-
-    for line in text.splitlines():
-        clean = line.strip()
-
-        if clean.upper() in SECTION_HEADERS:
-            current_section = clean.upper()
-            sections[current_section] = []
-            continue
-
-        if clean:
-            sections[current_section].append(clean)
-
-    return sections
-
-
 def extract_sentences(lines: list[str]) -> list[str]:
     """
     Convert section lines into sentences.
@@ -142,7 +127,7 @@ def extract_sentences(lines: list[str]) -> list[str]:
     # split sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
 
-    return [s.strip() for s in sentences if len(s.strip()) > 20]
+    return [s.strip() for s in sentences]
 
 
 def preprocess_resume(pdf_path: str, logger=None) -> list[dict]:
@@ -151,11 +136,12 @@ def preprocess_resume(pdf_path: str, logger=None) -> list[dict]:
     logger.info("Inside preprocess_resume\n")
 
     lines = extract_lines_with_style(pdf_path, logger)
-
     current_section = "OTHER"
     current_context = None
-
-    SKIP_SECTIONS = {"OTHER", "EDUCATION", "SKILLS"}
+    textones = []
+    boldones = []
+    SKIP_SECTIONS = "OTHERS"
+    leading_context = False
 
     final_chunks = []
 
@@ -163,25 +149,33 @@ def preprocess_resume(pdf_path: str, logger=None) -> list[dict]:
 
         text = line["text"]
         bold = line["bold"]
-
-        clean = text.strip()
+        text = text.strip()
+        
+        #context finding
+        if bold and not text.isupper():
+            #appending desingation to company name
+            if(leading_context):
+                logger.info(f"claimed company/project titles: {current_context}")
+                current_context += text
+                continue
+                
+            #Titles under sections eg. project names, company names-role
+            current_context = text
+            logger.info(f"claimed company & role: {current_context}")
+            leading_context = not leading_context
+            continue
+        
+        leading_context = False
 
         # section detection
-        if clean.upper() in SECTION_HEADERS:
-            current_section = clean.upper()
+        if bold and text.isupper():
+            current_section = text
+            textones.append(current_section)
             current_context = None
             continue
-
-        if current_section in SKIP_SECTIONS:
-            continue
-
-        # detect context titles (company / project)
-        if bold and clean.upper() not in SECTION_HEADERS:
-            current_context = clean
-            continue
-
+        
         # sentence splitting
-        sentences = extract_sentences([clean])
+        sentences = extract_sentences([text])
 
         for sentence in sentences:
 
@@ -194,13 +188,13 @@ def preprocess_resume(pdf_path: str, logger=None) -> list[dict]:
 
     return final_chunks
 
-def init_test_resume_pipeline(pdf_path: str):
+def init_test_resume_pipeline(pdf_path: str, logger):
     """
     Simple runner to test resume preprocessing pipeline.
     Prints extracted chunks with section metadata.
     """
 
-    chunks = preprocess_resume(pdf_path)
+    chunks = preprocess_resume(pdf_path, logger = logger)
 
     print("\nTotal chunks extracted:", len(chunks))
     print("-" * 60)
@@ -212,5 +206,15 @@ def init_test_resume_pipeline(pdf_path: str):
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(
+        filename="resume_extractor.log",
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%H:%M:%S"
+    )
+
+    logger = logging.getLogger(__name__)
     resume_path = "resume_a2.pdf"   # testing
-    init_test_resume_pipeline(resume_path)
+    init_test_resume_pipeline(resume_path, logger)

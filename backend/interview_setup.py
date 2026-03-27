@@ -12,7 +12,7 @@ async def extract_jd_priorities_llm(jd_text: str, jd_role: str, max_topics: int,
     """
     MAX_RETRIES = 3
     user_prompt = f"""
-        Extract the main interview topics for the given job role and job description.
+        Extract the most important interview topics from the job role and job description.
         job role: {jd_role}
         Job Description:
         {jd_text}
@@ -20,11 +20,11 @@ async def extract_jd_priorities_llm(jd_text: str, jd_role: str, max_topics: int,
         Return a Python list of dictionaries.
 
         Each dictionary must contain:
-        - topic: the main interview topic
-        - keywords: 4–5 related related terms/subtopics that might appear in a resume
+        - topic:a 2–4 word interview topic
+        - keywords: 4–5 concise resume keywords related to that topic
 
         Rules:
-        - Give ONLY {max_topics} most important topics or less if enough.
+        - Give ATMOST {max_topics} topics
         - topic must be 2–4 words
         - keywords must be concise resume terms
         - STRICTLY NO explanations
@@ -82,7 +82,7 @@ async def extract_jd_priorities_llm(jd_text: str, jd_role: str, max_topics: int,
                 raise ValueError("No valid topics found")
 
             # limit
-            cleaned = cleaned[:6]
+            cleaned = cleaned[:max_topics]
             topics = [item["topic"] for item in cleaned]
 
             return topics, cleaned

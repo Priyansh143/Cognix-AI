@@ -18,6 +18,7 @@ from backend.analysis import generate_human_report, generate_report
 import sqlite3
 import yaml
 import json
+import logging
 
 PROFILE_PATH = "data/profile.json"
 CONFIG_PATH = "config.yaml"
@@ -31,6 +32,10 @@ with open(CONFIG_PATH, "r") as f:
 
 app.mount("/static", StaticFiles(directory="frontend/static"), name = "static")
 templates = Jinja2Templates(directory="frontend/templates")
+
+def log_and_raise(logger, stage, e):
+    logger.exception(f"[ERROR] Failure during {stage}: {str(e)}")
+    raise
 
 class WebSocketInputHandler:
     def __init__(self, websocket: WebSocket):
@@ -108,35 +113,51 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     await websocket.accept()
 
     try:
-        logger = setup_run_logger()
-        logger.info(f"WebSocket connection established for session_id: {session_id}")
-
         session = session_store.get(session_id)
-        logger.info(f"session store: {session_store}")
-
+        logger = setup_run_logger()
+        
         if not session:
             await websocket.close()
             return
-
+        
         job_role = session["role"]
         job_desc = session["jd"]
         resume_path = session["resume_path"]
         config = session["config"]
+        
+        
+        if not config["logging"]["enabled"]:
+            logger.disabled = True
+        else:
+            level = getattr(logging, config["logging"]["level"].upper(), logging.INFO)
+            logger.setLevel(level)
+        
+        logger.info(f"WebSocket connection established for session_id: {session_id}")
+        logger.info(f"session store: {session_store}")
 
         # Build FAISS using uploaded resume
-        faiss_service = ResumeFAISS(resume_pdf = resume_path, logger=logger)
-
-        # Extract JD priorities
-        jd_priorities, topic_objects = await extract_jd_priorities_llm(
-            jd_role=job_role,
-            jd_text=job_desc,
-            max_topics=config["interview"]["max_topics"],
-            llm_call=model_client,
-            logger=logger
-        )
+        try:
+            faiss_service = ResumeFAISS(resume_pdf = resume_path, logger=logger)
+        except Exception as e:
+            log_and_raise(logger, "Build FAISS", e)
+            
+        try: 
+            # Extract JD priorities
+            jd_priorities, topic_objects = await extract_jd_priorities_llm(
+                jd_role=job_role,
+                jd_text=job_desc,
+                max_topics=config["interview"]["max_topics"],
+                llm_call=model_client,
+                logger=logger
+            )
+        except Exception as e:
+            log_and_raise(logger, "extract_jd_priorities", e)
 
         # Search resume evidence
-        faiss_results = faiss_service.search(topic_objects, top_k=3,resume_path=resume_path, logger=logger)
+        try:
+            faiss_results = faiss_service.search(topic_objects, top_k=3,resume_path=resume_path, logger=logger)
+        except Exception as e:
+            log_and_raise(logger, "FAISS Search", e)
         logger.info(f"config used in app.py: {config}")
         logger.info(f"all evidence: {faiss_results}")
         # Initialize interview state
@@ -148,13 +169,16 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         )
 
         # Start interview controller
-        await run_interview(
-            websocket=websocket,
-            state=state,
-            llm_client=model_client,
-            faiss_results=faiss_results,
-            logger=logger
-        )
+        try:
+            await run_interview(
+                websocket=websocket,
+                state=state,
+                llm_client=model_client,
+                faiss_results=faiss_results,
+                logger=logger
+            )
+        except Exception as e:
+            log_and_raise(logger, "run_interview", e)
 
     except WebSocketDisconnect:
         print("WebSocket disconnected.")

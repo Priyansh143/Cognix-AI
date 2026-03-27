@@ -37,10 +37,12 @@ async def run_interview(
             else:
                 logger.warning("No FAISS evidence found")
                 state.resume_evidence = ["No relevant evidence found."]
-
-            await websocket.send_text(
-                f"SYSTEM_INFO:Now evaluating {current_priority}"
-            )
+            try:
+                await websocket.send_text(
+                    f"SYSTEM_INFO:Now evaluating {current_priority}"
+                )
+            except Exception as e:
+                log_and_raise(logger, "websocket.receive_text()", e)
 
         # ---- Decide next action ----
         logger.info(f"[run_interview] Deciding next action")
@@ -51,36 +53,50 @@ async def run_interview(
         )
 
         # ---- Ask interviewer (LLM call) ----
-        question = await ask_interviewer(
-            llm_client=llm_client,
-            job_role=state.job_role,
-            jd_priority=current_priority,
-            action=action.value,
-            resume_evidence=state.resume_evidence[0],
-            history=state.history if action == QuestionType.CLARIFICATION or action == QuestionType.DEPTH else None,
-            covered_topics= state.covered_topics.get(current_priority, set()),
-            interview_difficulty=interview_difficulty,
-            logger = logger
-        )
+        try:
+            question = await ask_interviewer(
+                llm_client=llm_client,
+                job_role=state.job_role,
+                jd_priority=current_priority,
+                action=action.value,
+                resume_evidence=state.resume_evidence[0],
+                history=state.history if action == QuestionType.CLARIFICATION or action == QuestionType.DEPTH else None,
+                covered_topics= state.covered_topics.get(current_priority, set()),
+                interview_difficulty=interview_difficulty,
+                logger = logger
+            )
+        except Exception as e:
+            log_and_raise(logger, "ask_interviewer()", e)
 
         logger.info(f"[Interviewer] {question}")
-        await websocket.send_text(f"Interviewer:{question}")
+        
+        try:
+            await websocket.send_text(f"Interviewer:{question}")
+        except Exception as e:
+            log_and_raise(logger, "send_text(interviewer)", e)
 
         # ---- Candidate answers ----
-        await websocket.send_text("SYSTEM_TURN:USER")
-        answer = await websocket.receive_text()
+        try:
+            await websocket.send_text("SYSTEM_TURN:USER")
+            answer = await websocket.receive_text()
+        except Exception as e:
+            log_and_raise(logger, "send_text(user)", e)    
+            
         logger.info(f"[Candidate] {answer}")
 
         # ---- Evaluate answer (LLM call) ----
-        evaluator_output = await evaluate_answer(
-            llm_client=llm_client,
-            job_role=state.job_role,
-            jd_priority=current_priority,
-            question=question,
-            answer=answer,
-            difficulty = interview_difficulty,
-            logger = logger
-        )
+        try:
+            evaluator_output = await evaluate_answer(
+                llm_client=llm_client,
+                job_role=state.job_role,
+                jd_priority=current_priority,
+                question=question,
+                answer=answer,
+                difficulty = interview_difficulty,
+                logger = logger
+            )
+        except Exception as e:
+            log_and_raise(logger, "evaluate_answer()", e)
         
         priority = state.jd_priorities[state.current_priority_index]
 
@@ -115,6 +131,8 @@ async def run_interview(
     logger.info("Interview finished")
     await websocket.send_text("SYSTEM_END:")
     
-
+def log_and_raise(logger, stage, e):
+    logger.exception(f"[ERROR] Failure during {stage}: {str(e)}")
+    raise
 
 

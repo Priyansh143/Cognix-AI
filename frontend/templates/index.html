@@ -45,12 +45,12 @@
         </div>
         <div id="resume-section" style="display:none;">
             <label class="file-upload">
-                Upload Resume (PDF)
+                <span class="file-label-text">Upload Resume (PDF)</span>
                 <input type="file" id="resumeFile" accept=".pdf" required>
             </label>
         </div>
 
-        <button class="full-btn"onclick="startInterview()">Start Interview</button>
+        <button id="startInterviewBtn" class="full-btn"onclick="startInterview()">Start Interview</button>
 
         <div class="button-row">    
             <button id="toggleConfig">Advance Interview Settings</button>
@@ -162,7 +162,8 @@
                         </span>
                     </span>
                 </label>
-                <input type="number" id="maxTopics" value="6">
+                <input type="number" id="maxTopics" value="6" min="1"
+                oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1">
                 <label>Questions per Topic
                     <span class="info-tip">
                         ⓘ
@@ -171,7 +172,8 @@
                         </span>
                     </span>
                 </label>
-                <input type="number" id="questionsPerTopic" value="3">
+                <input type="number" id="questionsPerTopic" value="3" min="1"
+                oninput="if(this.value !== '' && Number(this.value) < 1) this.value = 1">
 
                 <label>Interview Difficulty
                     <span class="info-tip">
@@ -371,7 +373,7 @@
 
     </div>
     <!-- chat screen -->
-    <div id="chat-screen">
+    <div id="chat-screen" style="display: none;">
         <div id="header">
             <h2 id="role-display">Interview</h2>
             <span id="status">● Preparing</span>

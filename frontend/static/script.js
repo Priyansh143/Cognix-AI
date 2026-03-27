@@ -82,8 +82,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
     };
 
+    document.getElementById("resumeFile").addEventListener("change", function () {
+        const label = this.closest(".file-upload");
+        if (this.files && this.files[0]) {
+            label.querySelector(".file-label-text").textContent = `✓ ${this.files[0].name}`;
+            label.style.borderColor = "rgba(52, 211, 153, 0.5)";
+            label.style.background = "rgba(16, 185, 129, 0.06)";
+            label.style.color = "#34d399";
+        }
+    });
 
 });
+
 
 
 function saveApiKey() {
@@ -104,12 +114,17 @@ function saveApiKey() {
 
 function toggleInputMethod() {
     const method = document.querySelector('input[name="inputMethod"]:checked').value;
-
     document.getElementById("resume-section").style.display =
         method === "resume" ? "block" : "none";
-
-    // document.getElementById("profile-section").style.display =
-    //     method === "profile" ? "block" : "none";
+    
+    if (method === "resume") {
+        const label = document.querySelector(".file-upload");
+        label.querySelector(".file-label-text").textContent = "Upload Resume (PDF)";
+        label.style.borderColor = "";
+        label.style.background = "";
+        label.style.color = "";
+        document.getElementById("resumeFile").value = "";
+    }
 }
 
 function openProfile() {
@@ -308,14 +323,11 @@ function loadProfile() {
 // --- Setup Function ---
 async function startInterview() {
 
-    const preparingMsg = addSystemMessage("Preparing your interview... This may take a few seconds.");
-    enableInput(false);
-
     const config = {
         api: {
             groq_api_key:
-                document.getElementById("apiKey")?.value ||
-                DEFAULT_CONFIG.api.groq_api_key
+            document.getElementById("apiKey")?.value ||
+            DEFAULT_CONFIG.api.groq_api_key
         },
         models: {
             llm_model: DEFAULT_CONFIG.models.llm_model,
@@ -323,75 +335,95 @@ async function startInterview() {
         },
         interview: {
             questions_per_topic:
-                parseInt(document.getElementById("questionsPerTopic")?.value) ||
-                DEFAULT_CONFIG.interview.questions_per_topic,
+            parseInt(document.getElementById("questionsPerTopic")?.value) ||
+            DEFAULT_CONFIG.interview.questions_per_topic,
             max_topics:
-                parseInt(document.getElementById("maxTopics")?.value) ||
-                DEFAULT_CONFIG.interview.max_topics,
+            parseInt(document.getElementById("maxTopics")?.value) ||
+            DEFAULT_CONFIG.interview.max_topics,
             difficulty:
-                document.getElementById("difficulty")?.value ||
-                DEFAULT_CONFIG.interview.difficulty,        // ← was DEFAULT_CONFIG.difficulty (wrong path)
+            document.getElementById("difficulty")?.value ||
+            DEFAULT_CONFIG.interview.difficulty,        // ← was DEFAULT_CONFIG.difficulty (wrong path)
             thresholds: {
                 weak:
-                    parseFloat(document.getElementById("weakThreshold")?.value) ||
-                    DEFAULT_CONFIG.interview.thresholds.weak,
+                parseFloat(document.getElementById("weakThreshold")?.value) ||
+                DEFAULT_CONFIG.interview.thresholds.weak,
                 medium:
-                    parseFloat(document.getElementById("mediumThreshold")?.value) ||
-                    DEFAULT_CONFIG.interview.thresholds.medium  // ← was DEFAULT_CONFIG.intervie (typo)
-                },
+                parseFloat(document.getElementById("mediumThreshold")?.value) ||
+                DEFAULT_CONFIG.interview.thresholds.medium  // ← was DEFAULT_CONFIG.intervie (typo)
+            },
             policy: {
                 start: {
                     theory:
-                        parseFloat(document.getElementById("startTheory")?.value) ||
-                        DEFAULT_CONFIG.interview.policy.start.theory,
+                    parseFloat(document.getElementById("startTheory")?.value) ||
+                    DEFAULT_CONFIG.interview.policy.start.theory,
                     applied:
                         parseFloat(document.getElementById("startApplied")?.value) ||
                         DEFAULT_CONFIG.interview.policy.start.applied
-                },
-                weak: {
-                    clarification:
+                    },
+                    weak: {
+                        clarification:
                         parseFloat(document.getElementById("weakClarification")?.value) ||
                         DEFAULT_CONFIG.interview.policy.weak.clarification,
-                    theory:
+                        theory:
                         parseFloat(document.getElementById("weakTheory")?.value) ||
                         DEFAULT_CONFIG.interview.policy.weak.theory
-                },
-                medium: {
-                    depth:
+                    },
+                    medium: {
+                        depth:
                         parseFloat(document.getElementById("mediumDepth")?.value) ||
                         DEFAULT_CONFIG.interview.policy.medium.depth,
                         theory:
                         parseFloat(document.getElementById("mediumTheory")?.value) ||
                         DEFAULT_CONFIG.interview.policy.medium.theory,
-                    applied:
+                        applied:
                         parseFloat(document.getElementById("mediumApplied")?.value) ||
                         DEFAULT_CONFIG.interview.policy.medium.applied
-                },
-                strong: {
-                    applied:
+                    },
+                    strong: {
+                        applied:
                         parseFloat(document.getElementById("strongApplied")?.value) ||
                         DEFAULT_CONFIG.interview.policy.strong.applied,
-                    depth:
+                        depth:
                         parseFloat(document.getElementById("strongDepth")?.value) ||
                         DEFAULT_CONFIG.interview.policy.strong.depth,
-                    theory:
+                        theory:
                         parseFloat(document.getElementById("strongTheory")?.value) ||
                         DEFAULT_CONFIG.interview.policy.strong.theory
+                    }
                 }
+            },
+            logging: {
+                enabled: DEFAULT_CONFIG.logging.enabled,
+                level: DEFAULT_CONFIG.logging.level
             }
-        },
-        logging: {
-            on: DEFAULT_CONFIG.logging.on,
-            level: DEFAULT_CONFIG.logging.level
-        }
-    };
-
+        };
+        
     const role = document.getElementById('jobRole').value;
     const jd = document.getElementById('jobDescription').value;
     const method = document.querySelector('input[name="inputMethod"]:checked').value;
-
-    if (!role) return alert("Please enter a job role");
+    
+    if (!role || !jd) return alert("Please enter a job role");
     if (!jd) return alert("Please paste the job description");
+    
+    
+    // --- Send data to backend ---
+    const formData = new FormData();
+    formData.append("role", role);
+    formData.append("jd", jd);
+    formData.append("config", JSON.stringify(config));
+    
+    if (method === "profile") {
+        
+    } else {
+        const fileInput = document.getElementById("resumeFile");
+        const resumeFile = fileInput.files[0];
+        
+        if (!resumeFile) {
+            return alert("Please upload your resume");
+        }
+        
+        formData.append("resume", resumeFile);
+    }
     
     // --- UI Transition ---
     document.getElementById('setup-screen').style.display = 'none';
@@ -400,25 +432,8 @@ async function startInterview() {
     document.getElementById('status').style.color = 'orange';
     document.getElementById('status').innerText = '● Preparing';
     document.getElementById('role-display').innerText = role + " Interview";
-
-    // --- Send data to backend ---
-    const formData = new FormData();
-    formData.append("role", role);
-    formData.append("jd", jd);
-    formData.append("config", JSON.stringify(config));
-
-    if (method === "profile") {
-
-    } else {
-        const fileInput = document.getElementById("resumeFile");
-        const resumeFile = fileInput.files[0];
-
-        if (!resumeFile) {
-            return alert("Please upload your resume");
-        }
-
-        formData.append("resume", resumeFile);
-    }
+    const preparingMsg = addSystemMessage("Preparing your interview... This may take a few seconds.");
+    enableInput(false);
 
     const response = await fetch("/setup", {
         method: "POST",
@@ -463,8 +478,6 @@ async function startInterview() {
         if (data.startsWith("SYSTEM_END:")) {
             addSystemMessage("Interview Finished.");
             enableInput(false);
-            document.getElementById('status').style.color = 'red';
-            document.getElementById('status').innerText = '● Finished';
             document.getElementById('afterInterview').style.display = 'flex';
             ws.close();
             return;
@@ -789,6 +802,7 @@ function openHistory(){
 function goBack(screen){
 
     document.getElementById("config-panel").style.display = "none";
+    document.getElementById("chat-screen").style.display = "none";
     document.getElementById("profile-screen").style.display = "none";
     document.getElementById("evaluation-screen").style.display = "none";
     document.getElementById("history-screen").style.display = "none";

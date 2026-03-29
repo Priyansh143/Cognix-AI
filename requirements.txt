@@ -19,7 +19,7 @@ scipy==1.17.0
 sentence-transformers==5.2.3
 transformers==5.2.0
 tokenizers==0.22.2
-torch==2.10.0
+torch-cpu==2.10.0
 faiss-cpu==1.13.2
 huggingface_hub==1.4.1
 safetensors==0.7.0

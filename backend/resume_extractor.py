@@ -188,33 +188,33 @@ def preprocess_resume(pdf_path: str, logger=None) -> list[dict]:
 
     return final_chunks
 
-def init_test_resume_pipeline(pdf_path: str, logger):
-    """
-    Simple runner to test resume preprocessing pipeline.
-    Prints extracted chunks with section metadata.
-    """
+# def init_test_resume_pipeline(pdf_path: str, logger):
+#     """
+#     Simple runner to test resume preprocessing pipeline.
+#     Prints extracted chunks with section metadata.
+#     """
 
-    chunks = preprocess_resume(pdf_path, logger = logger)
+#     chunks = preprocess_resume(pdf_path, logger = logger)
 
-    print("\nTotal chunks extracted:", len(chunks))
-    print("-" * 60)
-    # print(f"Chunks: \n{chunks}")
-    for i, chunk in enumerate(chunks, 1):
-        print(f"Chunk {i}\n")
-        print(f"{chunk}")
-        print("-" * 60)
+#     print("\nTotal chunks extracted:", len(chunks))
+#     print("-" * 60)
+#     # print(f"Chunks: \n{chunks}")
+#     for i, chunk in enumerate(chunks, 1):
+#         print(f"Chunk {i}\n")
+#         print(f"{chunk}")
+#         print("-" * 60)
 
 
-if __name__ == "__main__":
-    import logging
+# if __name__ == "__main__":
+#     import logging
 
-    logging.basicConfig(
-        filename="resume_extractor.log",
-        level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(message)s",
-        datefmt="%H:%M:%S"
-    )
+#     logging.basicConfig(
+#         filename="resume_extractor.log",
+#         level=logging.INFO,
+#         format="%(asctime)s | %(levelname)s | %(message)s",
+#         datefmt="%H:%M:%S"
+#     )
 
-    logger = logging.getLogger(__name__)
-    resume_path = "resume_a2.pdf"   # testing
-    init_test_resume_pipeline(resume_path, logger)
+#     logger = logging.getLogger(__name__)
+#     resume_path = "resume_a2.pdf"   # testing
+#     init_test_resume_pipeline(resume_path, logger)

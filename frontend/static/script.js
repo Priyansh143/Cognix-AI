@@ -91,6 +91,23 @@ window.addEventListener("DOMContentLoaded", () => {
             label.style.color = "#34d399";
         }
     });
+    const infoModal = document.getElementById("info-modal");
+    const openInfoBtn = document.getElementById("openInfoModal");
+    const closeInfoBtn = document.getElementById("closeInfoModal");
+
+    openInfoBtn.onclick = () => {
+        infoModal.style.display = "flex";
+    };
+
+    closeInfoBtn.onclick = () => {
+        infoModal.style.display = "none";
+    };
+
+    window.onclick = (event) => {
+        if (event.target === infoModal) {
+            infoModal.style.display = "none";
+        }
+    };
 
 });
 
@@ -114,8 +131,8 @@ function saveApiKey() {
 
 function toggleInputMethod() {
     const method = document.querySelector('input[name="inputMethod"]:checked').value;
-    document.getElementById("resume-section").style.display =
-        method === "resume" ? "block" : "none";
+    document.getElementById("resume").style.display =
+        method === "resume" ? "flex" : "none";
     
     if (method === "resume") {
         const label = document.querySelector(".file-upload");

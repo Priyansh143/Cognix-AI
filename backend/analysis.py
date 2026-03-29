@@ -2,7 +2,6 @@ import sqlite3
 import json
 from collections import Counter, defaultdict
 from statistics import mean
-from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,13 +12,12 @@ from autogen_core.models import SystemMessage
 from .database import save_report
 from datetime import datetime
 import numpy as np
-load_dotenv()
 import yaml
 CONFIG_PATH = "config.yaml"
 with open(CONFIG_PATH, "r") as f:
     CONFIG = yaml.safe_load(f) 
 
-embedding_model_name = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
+embedding_model_name = CONFIG["models"]["embedding_model"]
 
 embedding_model = SentenceTransformer(embedding_model_name, device="cpu")
 

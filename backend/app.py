@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 from typing import Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Query

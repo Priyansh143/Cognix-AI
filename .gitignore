@@ -10,3 +10,5 @@ start.txt
 tests/
 future_improvement.txt
 .env
+*.log
+.vscode/

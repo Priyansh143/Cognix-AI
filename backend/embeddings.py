@@ -1,8 +1,6 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
-from dotenv import load_dotenv 
-load_dotenv()
 import yaml
 
 with open("config.yaml") as f:

@@ -23,7 +23,7 @@ interview:
     medium: 0.7
     weak: 0.5
 logging:
-  enabled: true
+  enabled: false
   level: INFO
 models:
   embedding_model: BAAI/bge-base-en-v1.5

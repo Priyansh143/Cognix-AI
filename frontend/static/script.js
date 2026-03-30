@@ -677,8 +677,6 @@ function renderEvaluation(report, reportData){
 
     /* SCORE */
     document.getElementById("score-value").innerText = (reportData.overall_score * 100).toFixed(2) + "%";
-    console.log(reportData.overall_score);
-    console.log(typeof reportData.overall_score);
 
     /* STRENGTHS */
     const strengthList = document.getElementById("strength-list");

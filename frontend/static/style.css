@@ -1249,12 +1249,6 @@ textarea:focus{
     margin-bottom: 1rem;
 }
 
-#evaluation-text {
-    color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.7;
-}
-
 /* --- Evaluation Report --- */
 
 #evaluation-text {

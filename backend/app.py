@@ -205,7 +205,6 @@ async def get_evaluation(session_id: str):
     else:
         job_role = session["role"]
     report, report_data = await generate_human_report(model_client, session_id, job_role=job_role)
-    print(f"Generated report {type(report)}: {report}")
     return {
     "report": report,
     "report_data": report_data
@@ -239,9 +238,9 @@ async def get_interviews():
             AVG(
                 satisfaction *
                 CASE confidence
-                    WHEN 'low' THEN 0.5
+                    WHEN 'low' THEN 0.8
                     WHEN 'medium' THEN 1.0
-                    WHEN 'high' THEN 1.5
+                    WHEN 'high' THEN 1.2
                     ELSE 1.0
                 END
             ) / 1.5 as overall_score

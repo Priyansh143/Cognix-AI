@@ -6,7 +6,6 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics.pairwise import cosine_similarity
 import os
-from autogen_ext.models.openai import OpenAIChatCompletionClient
 import asyncio
 from autogen_core.models import SystemMessage
 from .database import save_report
@@ -156,19 +155,6 @@ def generate_report(session_id):
 
 async def generate_human_report(llm_client, session_id, job_role):
     
-    llm_client = OpenAIChatCompletionClient(model = CONFIG["models"]["llm_model"],
-                                        api_key=CONFIG["api"]["groq_api_key"],
-                                        base_url="https://api.groq.com/openai/v1",
-                                        model_info={
-                                            "family": "llama",
-                                            "context_length": 8192,
-                                            "vision": False,
-                                            "function_calling": True,
-                                            "json_output": True,
-                                            "supports_tools": True,
-                                            "structured_output": False,
-                                        })
-
     report_data = generate_report(session_id)
 
     prompt = f"""

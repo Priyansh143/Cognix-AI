@@ -7,8 +7,6 @@ Unlike typical AI interview tools that rely purely on prompts, InterviewSim uses
 
 ---
 
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=Priyansh143&repo=InterviewSim-AI&theme=tokyonight)](https://github.com/Priyansh143/InterviewSim-AI)
-
 ## Demo
 
 *(Short walkthrough of the interview flow, evaluation and other features)*

@@ -8,7 +8,7 @@ Unlike typical AI interview tools that rely purely on prompts, InterviewSim uses
 
 ## Demo
 
-*(Short walkthrough of the interview flow and evaluation system)*
+*(Short walkthrough of the interview flow, evaluation and other features)*
 
 https://github.com/user-attachments/assets/c67f6a8a-bfd6-414b-b31b-fafc6eb7ed44
 <!-- <video here> -->
@@ -59,6 +59,7 @@ https://github.com/user-attachments/assets/c67f6a8a-bfd6-414b-b31b-fafc6eb7ed44
 - Git
 - Python 3.10+ (for local run)
 - Docker Desktop (for Docker run)
+- Groq API Key [Link](https://console.groq.com/keys)
 
 ### Clone the Repository
 

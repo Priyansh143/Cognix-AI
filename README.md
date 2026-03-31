@@ -64,8 +64,8 @@ https://github.com/user-attachments/assets/c67f6a8a-bfd6-414b-b31b-fafc6eb7ed44
 ### Clone the Repository
 
 ```bash
-git clone <https://github.com/Priyansh143/InterviewSim-AI>
-cd InterviewSim-AI
+> git clone <https://github.com/Priyansh143/InterviewSim-AI>
+> cd InterviewSim-AI
 ````
 
 ## Run the Application
@@ -83,6 +83,7 @@ This will automatically:
 * create a virtual environment if it does not exist
 * install the required dependencies
 * start the FastAPI server
+* Press Ctrl + C in terminal to close.
 
 Open the application in your browser:
 

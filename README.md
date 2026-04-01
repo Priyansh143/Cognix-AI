@@ -9,9 +9,10 @@ Unlike typical AI interview tools that rely purely on prompts, Cognix uses a **s
 
 ## Demo
 
-*(Short walkthr ough of the interview flow, evaluation and other features)*
+*(Short walkthrough of the interview flow, evaluation and other features)*
 
-https://github.com/user-attachments/assets/98e2a4be-788b-479b-8a7b-352be13e70d3
+https://github.com/user-attachments/assets/b064245e-e0a4-4e65-9376-363554b10fae
+
 
 ---
 

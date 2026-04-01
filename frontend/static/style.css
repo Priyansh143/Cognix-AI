@@ -22,9 +22,10 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding: 2rem 0;
     background: linear-gradient(-45deg, #020617, #1e1b4b, #312e81, #0f172a);
     background-size: 400% 400%;
     animation: gradientShift 12s ease infinite;
@@ -38,10 +39,11 @@ body {
     border: 1px solid var(--border);
     border-radius: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    padding: 2rem;
+    padding: 2.5rem 2rem;
     text-align: center;
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
+    margin: auto;
 }
 
 @keyframes gradientShift{
@@ -50,18 +52,172 @@ body {
     100% {background-position:0% 50%;}
 }
 
+/* Title Container */
+.title-container {
+    position: relative;
+    margin: 0 0 1.5rem 0;
+    padding: 1.5rem 0;
+    padding-left: 60px; /* Shift content right for visual balance */
+}
+
+/* Main Title */
 h1 {
     color: #e0eaff;
-    text-shadow: 0 0 12px rgba(99, 102, 241, 0.8), 0 0 30px rgba(79, 70, 229, 0.4);
-    margin-bottom: 1.5rem;
-    font-size: 2rem;
+    font-size: 3.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-shadow: 
+        0 0 20px rgba(77, 139, 255, 0.6),
+        0 0 40px rgba(79, 70, 229, 0.4),
+        0 0 60px rgba(99, 102, 241, 0.2);
+    position: relative;
+    z-index: 2;
 }
+
+/* Version Badge - Terminal Style */
+.version-badge {
+    font-size: 0.35em;
+    font-weight: 500;
+    color: #e546d0;
+    background: rgba(229, 70, 208, 0.08);
+    border: 1px solid rgba(229, 70, 208, 0.3);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-left: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    display: inline-block;
+    box-shadow: 0 0 15px rgba(229, 70, 208, 0.15);
+    transition: all 0.3s ease;
+}
+
+.version-badge:hover {
+    background: rgba(229, 70, 208, 0.12);
+    border-color: rgba(229, 70, 208, 0.5);
+    box-shadow: 0 0 20px rgba(229, 70, 208, 0.25);
+}
+
+/* Corner Brackets */
+.corner-bracket {
+    position: absolute;
+    font-size: 4rem;
+    font-weight: 300;
+    font-family: 'DM Mono', monospace;
+    background: linear-gradient(135deg, #f1a863, #e546d0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.7;
+    z-index: 1;
+    filter: drop-shadow(0 0 10px rgba(229, 70, 208, 0.3));
+    transition: opacity 0.3s ease;
+}
+
+.corner-bracket.top-left {
+    top: -10px;
+    left: -10px;
+}
+
+.corner-bracket.bottom-right {
+    bottom: -10px;
+    right: -10px;
+}
+
+.title-container:hover .corner-bracket {
+    opacity: 1;
+}
+
+/* Symmetric Radiating Circuit Lines - Left Side */
+.title-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150px;
+    height: 100px;
+    transform: translate(-100%, -50%);
+    background-image: 
+        /* Horizontal main line */
+        linear-gradient(90deg, transparent 0%, rgba(77, 139, 255, 0.4) 40%, rgba(77, 139, 255, 0.6) 60%, transparent 100%),
+        /* Upper diagonal */
+        linear-gradient(135deg, transparent 0%, transparent 40%, rgba(241, 168, 99, 0.3) 70%, transparent 100%),
+        /* Lower diagonal */
+        linear-gradient(45deg, transparent 0%, transparent 40%, rgba(229, 70, 208, 0.3) 70%, transparent 100%);
+    background-size: 150px 1px, 100px 1px, 100px 1px;
+    background-position: 0% 50%, 0% 25%, 0% 75%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Symmetric Radiating Circuit Lines - Right Side */
+.title-container::after {
+    content: '';
+    position: absolute;
+    right: 50%;
+    top: 50%;
+    width: 150px;
+    height: 100px;
+    transform: translate(100%, -50%);
+    background-image: 
+        /* Horizontal main line */
+        linear-gradient(90deg, transparent 0%, rgba(77, 139, 255, 0.6) 40%, rgba(77, 139, 255, 0.4) 60%, transparent 100%),
+        /* Upper diagonal */
+        linear-gradient(45deg, transparent 0%, transparent 40%, rgba(241, 168, 99, 0.3) 70%, transparent 100%),
+        /* Lower diagonal */
+        linear-gradient(135deg, transparent 0%, transparent 40%, rgba(229, 70, 208, 0.3) 70%, transparent 100%);
+    background-size: 150px 1px, 100px 1px, 100px 1px;
+    background-position: 0% 50%, 100% 25%, 100% 75%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Tech Accent Line */
+.title-accent-line {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, #f1a863, #e546d0);
+    margin: 1rem auto 0 auto;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(229, 70, 208, 0.4);
+    opacity: 0.8;
+}
+
+/* Subtitle - Enhanced */
+.subtitle { 
+    color: #b4c8e0;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+/* Feature Line - Enhanced */
 .feature-line {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: #94a8c7;
     margin-bottom: 20px;
-    line-height: 1.5;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
 }
+
+/* Setup Screen - Adjusted padding */
+#setup-screen {
+    background: rgba(15, 35, 71, 0.55);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+    overflow: hidden;
+}
+
+/* Badge - Keep existing style */
 .badge {
     display: inline-block;
     background: rgba(77, 139, 255, 0.1);
@@ -76,7 +232,6 @@ h1 {
     font-weight: 500;
     font-family: 'DM Mono', monospace;
 }
-.subtitle { color: #94a8c7;; margin-bottom: 1.5rem; }
 
 /* --- Inputs & Textareas --- */
 

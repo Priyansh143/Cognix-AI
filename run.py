@@ -39,7 +39,7 @@ def dependencies_installed(python_path):
 
 
 def start_server(python_path):
-    print("\nStarting InterviewSim server...\n")
+    print("\nStarting Cognix server...\n")
 
     subprocess.call([
         python_path,

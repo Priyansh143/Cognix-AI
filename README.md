@@ -1,9 +1,9 @@
-# InterviewSim AI
+# Cognix AI
 ![Version](https://img.shields.io/badge/version-v1.0-blue)
 
 A **hybrid state–LLM interview simulation platform** that conducts structured interviews using retrieval-augmented context and a deterministic interview controller.
 
-Unlike typical AI interview tools that rely purely on prompts, InterviewSim uses a **state machine and policy engine** to orchestrate LLM agents and maintain a stable interview flow. The system extracts evaluation topics from job descriptions, retrieves relevant resume evidence, generates adaptive questions, evaluates answers in real time, and produces a structured post-interview report with topic-wise performance analysis.
+Unlike typical AI interview tools that rely purely on prompts, Cognix uses a **state machine and policy engine** to orchestrate LLM agents and maintain a stable interview flow. The system extracts evaluation topics from job descriptions, retrieves relevant resume evidence, generates adaptive questions, evaluates answers in real time, and produces a structured post-interview report with topic-wise performance analysis.
 
 ---
 
@@ -65,8 +65,8 @@ https://github.com/user-attachments/assets/c67f6a8a-bfd6-414b-b31b-fafc6eb7ed44
 ### Clone the Repository
 
 ```bash
-> git clone <https://github.com/Priyansh143/InterviewSim-AI>
-> cd InterviewSim-AI
+> git clone <https://github.com/Priyansh143/Cognix-AI>
+> cd Cognix-AI
 ````
 
 ## Run the Application
